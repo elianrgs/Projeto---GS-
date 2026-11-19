@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confere Aí — Protótipo navegável</title>
+<style>
+:root{
+  --navy:#13294B; --ink:#1B2430; --muted:#5D6B7A; --line:#E1E6EC;
+  --bg:#F5F3EE; --card:#FFFFFF; --blue:#2463EB; --green:#1B8A4B; --yellow:#C98A0B; --red:#C8321F;
+  --redbg:#FCEBE8; --greenbg:#E6F4EC; --yellowbg:#FBF2DF; --bluebg:#E9F0FE; --purple:#6B3FA0; --purplebg:#F1EAF8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#D9DEE5;color:var(--ink);min-height:100vh;display:flex;gap:40px;align-items:center;justify-content:center;padding:24px}
+.side{max-width:290px;color:var(--navy)}
+.side h1{font-size:22px;margin-bottom:8px}
+.side p{font-size:14px;color:#3D4D5E;line-height:1.5;margin-bottom:14px}
+.side ol{font-size:13px;color:#3D4D5E;padding-left:18px;line-height:1.7}
+.side a{color:var(--blue);cursor:pointer;text-decoration:none}
+.side a:hover{text-decoration:underline}
+.phone{width:390px;height:812px;background:var(--bg);border-radius:44px;border:10px solid #111;position:relative;overflow:hidden;box-shadow:0 30px 60px rgba(19,41,75,.25)}
+body.shot{background:var(--bg);padding:0;display:block}
+body.shot .side{display:none}
+body.shot .phone{border:none;border-radius:0;box-shadow:none}
+.status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:14px;font-weight:600}
+.screen{display:none;position:absolute;top:44px;left:0;right:0;bottom:0;flex-direction:column}
+.screen.on{display:flex}
+.body{flex:1;overflow-y:auto;padding:14px 20px 20px}
+.topbar{display:flex;align-items:center;gap:10px;padding:8px 20px 10px}
+.topbar h2{font-size:20px}
+.back{width:38px;height:38px;border-radius:50%;border:none;background:#fff;font-size:20px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.1);flex-shrink:0}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:17px;border-radius:14px;border:none;font-size:18px;font-weight:700;cursor:pointer;margin-top:10px}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.navy{background:var(--navy);color:#fff}
+.btn.red{background:var(--red);color:#fff}
+.btn.green{background:var(--green);color:#fff}
+.btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--line)}
+.btn.light{background:rgba(255,255,255,.16);color:#fff}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(19,41,75,.07)}
+.label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.small{font-size:14px;color:var(--muted);line-height:1.45}
+.row{display:flex;align-items:center;gap:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;font-size:12px;font-weight:700}
+.tabbar{display:flex;border-top:1px solid var(--line);background:#fff;padding:8px 6px 22px}
+.tab{flex:1;text-align:center;font-size:11px;color:var(--muted);cursor:pointer;padding-top:4px;font-weight:600}
+.tab .ic{font-size:22px;display:block;margin-bottom:2px}
+.tab.act{color:var(--blue)}
+.opt{display:flex;align-items:center;gap:12px;padding:15px;border:2px solid var(--line);border-radius:14px;margin-bottom:10px;cursor:pointer;background:#fff;font-size:16px;font-weight:600}
+.opt.sel{border-color:var(--blue);background:var(--bluebg)}
+.opt .ic{font-size:24px}
+.big-ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.sign{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.4}
+.sign:last-child{border:none}
+.chat{background:#E5DDD5;border-radius:14px;padding:12px}
+.bubble{background:#fff;border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.4;margin-bottom:6px;max-width:90%}
+.toggle{width:46px;height:28px;border-radius:99px;background:var(--green);position:relative;flex-shrink:0}
+.toggle:after{content:"";position:absolute;right:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff}
+.circle{width:96px;height:96px;border-radius:50%;color:#fff;font-size:50px;display:flex;align-items:center;justify-content:center;margin:16px auto}
+.steps{list-style:none}
+.steps li{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--muted);line-height:1.4}
+.steps li:last-child{border:none}
+.steps li b{display:block;font-size:15px;color:var(--ink)}
+.num{min-width:28px;height:28px;border-radius:50%;background:var(--bluebg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.pulse{animation:p 1.8s infinite}
+@keyframes p{0%{box-shadow:0 0 0 0 rgba(36,99,235,.45)}70%{box-shadow:0 0 0 16px rgba(36,99,235,0)}100%{box-shadow:0 0 0 0 rgba(36,99,235,0)}}
+.ans{flex:1;padding:18px 8px;border-radius:14px;border:2px solid var(--line);background:#fff;font-size:17px;font-weight:800;cursor:pointer;text-align:center}
+.ans.wrong{border-color:var(--green);background:var(--greenbg);color:var(--green)}
+#feedback{display:none}
+</style>
+</head>
+<body>
+<div class="side">
+  <h1>Confere Aí</h1>
+  <p>Protótipo navegável. Clique nos botões do celular ou use os atalhos para ir direto a uma tela.</p>
+  <p><b>Jornada principal:</b> Seu Antônio recebe um pedido de Pix do "neto", confere no app, a filha confirma que é golpe e ele não perde o dinheiro.</p>
+  <ol>
+    <li><a data-go="boas-vindas">Boas-vindas</a></li>
+    <li><a data-go="configurar">Acessibilidade e guardião</a></li>
+    <li><a data-go="inicio">Início</a></li>
+    <li><a data-go="conferir">Conferir mensagem</a></li>
+    <li><a data-go="resultado">Resultado: risco alto</a></li>
+    <li><a data-go="guardiao">Celular da guardiã</a></li>
+    <li><a data-go="protegido">Golpe evitado</a></li>
+    <li><a data-go="ja-paguei">Já paguei, e agora?</a></li>
+    <li><a data-go="radar">Radar de golpes</a></li>
+    <li><a data-go="treino">Treino: é golpe?</a></li>
+  </ol>
+</div>
+
+<div class="phone">
+  <div class="status" id="statusbar"><span>15:12</span><span>📶 4G · 🔋 71%</span></div>
+
+  <!-- 1 BOAS-VINDAS -->
+  <section class="screen" id="boas-vindas" style="background:var(--navy);color:#fff">
+    <div class="body" style="display:flex;flex-direction:column;justify-content:space-between;padding:30px 26px 34px">
+      <div>
+        <div style="width:74px;height:74px;border-radius:22px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:38px;margin-top:36px">🛡️</div>
+        <h1 style="font-size:36px;line-height:1.1;margin:26px 0 14px">Confere Aí</h1>
+        <p style="font-size:19px;line-height:1.45;opacity:.9">Recebeu um pedido de dinheiro, um link ou uma ligação estranha? <b>Confere antes de pagar.</b></p>
+        <div style="margin-top:28px;display:grid;gap:14px;font-size:16px;opacity:.95">
+          <div class="row"><span style="font-size:22px">🔍</span>Diz se a mensagem tem cara de golpe</div>
+          <div class="row"><span style="font-size:22px">👨‍👩‍👧</span>Um familiar de confiança confirma com você</div>
+          <div class="row"><span style="font-size:22px">🔊</span>Funciona por voz e pelo WhatsApp</div>
+        </div>
+      </div>
+      <div>
+        <button class="btn primary" data-go="configurar">Começar</button>
+        <button class="btn light" data-go="configurar">🔊 Ouvir explicação</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 CONFIGURAR -->
+  <section class="screen" id="configurar">
+    <div class="topbar"><button class="back" data-go="boas-vindas">‹</button><h2>Vamos deixar do seu jeito</h2></div>
+    <div class="body">
+      <div class="label">Como prefere usar?</div>
+      <div class="opt sel" data-toggle><span class="ic">🔠</span><div>Letras grandes</div></div>
+      <div class="opt sel" data-toggle><span class="ic">🔊</span><div>Ler as respostas em voz alta</div></div>
+      <div class="opt" data-toggle><span class="ic">🎙️</span><div>Falar em vez de digitar</div></div>
+      <div class="label" style="margin-top:16px">Quem é seu guardião?</div>
+      <p class="small" style="margin-bottom:10px">Alguém de confiança que confirma com você antes de qualquer pagamento suspeito. Essa pessoa <b>não</b> vê seu banco nem suas conversas.</p>
+      <div class="card row" style="justify-content:space-between;border:2px solid var(--blue)">
+        <div class="row"><span style="font-size:28px">👩</span><div><b>Márcia (filha)</b><div class="small">(11) 9••••-2210 · aceitou o convite</div></div></div>
+        <span class="pill" style="background:var(--greenbg);color:var(--green)">✓</span>
+      </div>
+      <div class="opt" style="border-style:dashed"><span class="ic">➕</span>Adicionar outro guardião</div>
+      <button class="btn primary" data-go="inicio">Pronto</button>
+      <p class="small" style="text-align:center;margin-top:10px">🔒 Você decide o que compartilhar (LGPD).</p>
+    </div>
+  </section>
+
+  <!-- 3 INÍCIO -->
+  <section class="screen" id="inicio">
+    <div class="body">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <div><div class="small">Boa tarde,</div><div style="font-size:24px;font-weight:800">Seu Antônio 👋</div></div>
+        <span class="pill" style="background:var(--greenbg);color:var(--green)">🛡️ Proteção ativa</span>
+      </div>
+      <button class="btn primary pulse" data-go="conferir" style="padding:26px 16px;font-size:21px;flex-direction:column;gap:4px;margin:4px 0 14px">
+        <span style="font-size:34px">🔍</span>Recebi algo suspeito
+        <span style="font-size:14px;font-weight:500;opacity:.9">Mensagem, ligação, link, boleto ou Pix</span>
+      </button>
+      <div class="card row" style="cursor:pointer" data-go="ja-paguei">
+        <div class="big-ic" style="background:var(--redbg)">🆘</div>
+        <div><b>Já paguei e acho que foi golpe</b><div class="small">Passo a passo para tentar recuperar</div></div>
+      </div>
+      <div class="card" style="cursor:pointer;background:var(--yellowbg)" data-go="radar">
+        <div class="label" style="color:#7A5300">⚠️ Golpe do momento na sua cidade</div>
+        <b>Falso parente com número novo</b>
+        <div class="small" style="color:#5E4300;margin-top:4px">"Oi, troquei de número." 214 casos conferidos esta semana em São Paulo.</div>
+      </div>
+      <div class="card row" style="cursor:pointer" data-go="treino">
+        <div class="big-ic" style="background:var(--purplebg)">🎯</div>
+        <div><b>Treino de 1 minuto</b><div class="small">É golpe ou não? Sequência de 6 dias 🔥</div></div>
+      </div>
+    </div>
+    <nav class="tabbar">
+      <div class="tab act" data-go="inicio"><span class="ic">🏠</span>Início</div>
+      <div class="tab" data-go="radar"><span class="ic">📡</span>Radar</div>
+      <div class="tab" data-go="treino"><span class="ic">🎯</span>Treino</div>
+      <div class="tab" data-go="configurar"><span class="ic">👤</span>Perfil</div>
+    </nav>
+  </section>
+
+  <!-- 4 CONFERIR -->
+  <section class="screen" id="conferir">
+    <div class="topbar"><button class="back" data-go="inicio">‹</button><h2>O que você recebeu?</h2></div>
+    <div class="body">
+      <div class="opt sel"><span class="ic">💬</span><div>Mensagem no WhatsApp<div class="small">Encaminhe para o Confere Aí</div></div></div>
+      <div class="opt"><span class="ic">📞</span><div>Ligação<div class="small">Conte por voz o que disseram</div></div></div>
+      <div class="opt"><span class="ic">📸</span><div>Foto da tela, boleto ou link</div></div>
+      <div class="label" style="margin-top:12px">Mensagem recebida</div>
+      <div class="chat">
+        <div class="small" style="color:#4A5560;margin-bottom:6px">📱 +55 11 9••••-7731 · número não salvo</div>
+        <div class="bubble">Oi vô, é o Rafael 😊 troquei de número, salva esse</div>
+        <div class="bubble">Vô tô com um problema, preciso pagar um boleto hoje e meu app do banco travou. Faz um Pix de R$ 1.800 pra mim? Amanhã te devolvo</div>
+        <div class="bubble">Chave: 438.••• (Jéssica S.) é a conta da minha amiga. Não liga agora que tô em reunião</div>
+      </div>
+      <button class="btn primary" data-go="resultado">🔍 Conferir agora</button>
+    </div>
+  </section>
+
+  <!-- 5 RESULTADO -->
+  <section class="screen" id="resultado">
+    <div style="background:var(--red);color:#fff;padding:14px 22px 20px">
+      <div class="pill" style="background:rgba(0,0,0,.2)">🔊 Lendo em voz alta…</div>
+      <div style="font-size:15px;font-weight:700;letter-spacing:.06em;margin-top:14px;opacity:.9">RISCO ALTO</div>
+      <h1 style="font-size:28px;line-height:1.15;margin-top:4px">Isso tem cara de golpe. Não faça o Pix.</h1>
+      <p style="font-size:15px;margin-top:6px;opacity:.95">Parece o golpe do <b>falso parente</b>.</p>
+    </div>
+    <div class="body">
+      <div class="label">Por que desconfiamos</div>
+      <div class="card" style="padding:4px 14px">
+        <div class="sign"><span>📱</span><div><b>Número novo</b> pedindo dinheiro</div></div>
+        <div class="sign"><span>⏰</span><div><b>Pressa:</b> “preciso pagar hoje”</div></div>
+        <div class="sign"><span>👤</span><div>Pix para <b>outra pessoa</b> (Jéssica), não para o Rafael</div></div>
+        <div class="sign"><span>🚫</span><div>Pede para <b>não ligar</b></div></div>
+      </div>
+      <button class="btn navy" data-go="guardiao">👩 Perguntar para a Márcia</button>
+      <button class="btn ghost">📞 Ligar no número antigo do Rafael</button>
+      <button class="btn ghost" data-go="protegido">🚫 Bloquear e denunciar</button>
+    </div>
+  </section>
+
+  <!-- 6 GUARDIÃO -->
+  <section class="screen" id="guardiao" style="background:#EEF1F5">
+    <div style="background:var(--purple);color:#fff;text-align:center;font-size:13px;font-weight:700;padding:6px">📱 VISTO NO CELULAR DA MÁRCIA (GUARDIÃ)</div>
+    <div class="body">
+      <div class="card" style="border:2px solid var(--red)">
+        <div class="row" style="margin-bottom:10px"><div class="big-ic" style="background:var(--redbg)">⚠️</div><div><b style="font-size:17px">Seu pai pediu ajuda</b><div class="small">Agora · Confere Aí</div></div></div>
+        <p style="font-size:15px;line-height:1.45">Seu Antônio recebeu um pedido de <b>Pix de R$ 1.800</b> de alguém que diz ser o <b>Rafael</b>, de um número novo. Nossa análise: <b style="color:var(--red)">risco alto</b>.</p>
+      </div>
+      <div class="label">O que você quer fazer?</div>
+      <button class="btn red" data-go="protegido">✋ É golpe, não pague</button>
+      <button class="btn ghost">📞 Ligar para o meu pai</button>
+      <button class="btn ghost">✅ Conferi, é o Rafael mesmo</button>
+      <div class="card" style="margin-top:14px">
+        <div class="label">Dica</div>
+        <p class="small">O Rafael está aí? Pergunte a ele no número de sempre. O Confere Aí <b>nunca</b> mostra as conversas nem a conta do seu pai, só este alerta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 PROTEGIDO -->
+  <section class="screen" id="protegido">
+    <div class="body" style="text-align:center;padding-top:26px">
+      <div class="circle" style="background:var(--green)">✓</div>
+      <h1 style="font-size:28px">Golpe evitado!</h1>
+      <p style="font-size:16px;color:var(--muted);margin:8px 6px 18px">A Márcia confirmou: o Rafael não trocou de número. <b style="color:var(--green)">R$ 1.800 continuam com você.</b></p>
+      <div class="card" style="text-align:left">
+        <div class="label">Agora vamos proteger os outros</div>
+        <ul class="steps">
+          <li><span class="num" style="background:var(--greenbg);color:var(--green)">✓</span><div><b>Número bloqueado</b>Ele não fala mais com você</div></li>
+          <li><span class="num" style="background:var(--greenbg);color:var(--green)">✓</span><div><b>Denunciado ao WhatsApp</b>Enviamos o print automaticamente</div></li>
+          <li><span class="num" style="background:var(--greenbg);color:var(--green)">✓</span><div><b>Radar avisado</b>Sem seu nome: o número entrou na lista de golpes</div></li>
+          <li><span class="num">4</span><div><b>Avisar o Rafael</b>O golpista pode tentar com outros parentes</div></li>
+        </ul>
+      </div>
+      <button class="btn ghost" data-go="inicio">Voltar ao início</button>
+    </div>
+  </section>
+
+  <!-- 8 JÁ PAGUEI -->
+  <section class="screen" id="ja-paguei">
+    <div class="topbar"><button class="back" data-go="inicio">‹</button><h2>Já paguei. E agora?</h2></div>
+    <div class="body">
+      <div class="card row" style="background:var(--yellowbg)"><span style="font-size:26px">⏱️</span><div class="small" style="color:#5E4300"><b>Calma, e seja rápido.</b> Quanto antes o banco souber, maior a chance de bloquear o dinheiro na conta do golpista.</div></div>
+      <div class="card">
+        <ul class="steps">
+          <li><span class="num">1</span><div><b>Ligue para o seu banco</b>Use o número atrás do cartão. Diga: “fui vítima de golpe no Pix e quero abrir o MED”.</div></li>
+          <li><span class="num">2</span><div><b>Peça o MED (devolução do Pix)</b>Você tem até 80 dias. Anote o protocolo aqui no app.</div></li>
+          <li><span class="num">3</span><div><b>Faça o boletim de ocorrência</b>Pela Delegacia Eletrônica. O app já preenche o resumo.</div></li>
+          <li><span class="num">4</span><div><b>Avise seu guardião</b>A Márcia pode ajudar com as ligações.</div></li>
+        </ul>
+      </div>
+      <button class="btn red">📞 Ligar para o meu banco</button>
+      <button class="btn ghost">📝 Montar o B.O. com o print</button>
+    </div>
+  </section>
+
+  <!-- 9 RADAR -->
+  <section class="screen" id="radar">
+    <div class="topbar"><h2>Radar de golpes</h2><span class="pill" style="background:var(--bluebg);color:var(--blue);margin-left:auto">São Paulo</span></div>
+    <div class="body">
+      <p class="small" style="margin-bottom:12px">O que mais chegou para conferir nesta semana. Toque para ouvir como o golpe funciona.</p>
+      <div class="card row"><div class="big-ic" style="background:var(--redbg)">👦</div><div style="flex:1"><b>Falso parente</b><div class="small">“Troquei de número, faz um Pix?”</div></div><span class="pill" style="background:var(--redbg);color:var(--red)">↑ 214</span></div>
+      <div class="card row"><div class="big-ic" style="background:var(--yellowbg)">🏦</div><div style="flex:1"><b>Falsa central do banco</b><div class="small">Ligação pedindo senha ou “teste” de Pix</div></div><span class="pill" style="background:var(--yellowbg);color:#8A5A00">↑ 131</span></div>
+      <div class="card row"><div class="big-ic" style="background:var(--bluebg)">📄</div><div style="flex:1"><b>Falso INSS</b><div class="small">Link para “prova de vida” ou consignado</div></div><span class="pill" style="background:var(--bluebg);color:var(--blue)">↑ 88</span></div>
+      <div class="card row"><div class="big-ic" style="background:var(--purplebg)">📦</div><div style="flex:1"><b>Taxa de entrega</b><div class="small">SMS com link para pagar frete</div></div><span class="pill" style="background:var(--purplebg);color:var(--purple)">↑ 57</span></div>
+      <button class="btn ghost">🔊 Ouvir o resumo da semana</button>
+    </div>
+    <nav class="tabbar">
+      <div class="tab" data-go="inicio"><span class="ic">🏠</span>Início</div>
+      <div class="tab act" data-go="radar"><span class="ic">📡</span>Radar</div>
+      <div class="tab" data-go="treino"><span class="ic">🎯</span>Treino</div>
+      <div class="tab" data-go="configurar"><span class="ic">👤</span>Perfil</div>
+    </nav>
+  </section>
+
+  <!-- 10 TREINO -->
+  <section class="screen" id="treino">
+    <div class="topbar"><button class="back" data-go="inicio">‹</button><h2>Treino de 1 minuto</h2><span class="pill" style="background:var(--purplebg);color:var(--purple);margin-left:auto">🔥 6 dias</span></div>
+    <div class="body">
+      <div class="label">Você recebeu este SMS:</div>
+      <div class="card" style="font-size:16px;line-height:1.45;border-left:5px solid var(--purple)">
+        BANCO: Compra de R$ 2.390,00 aprovada no seu cartão. Não reconhece? Ligue agora 0800 •••• 4471.
+      </div>
+      <p style="font-size:18px;font-weight:700;margin:14px 0 10px">É golpe?</p>
+      <div class="row" style="gap:10px">
+        <div class="ans" id="ans-sim">✋ É golpe</div>
+        <div class="ans" id="ans-nao">👍 Não é</div>
+      </div>
+      <div class="card" id="feedback" style="margin-top:14px;background:var(--greenbg)">
+        <b style="color:var(--green);font-size:17px">Acertou! 🎉</b>
+        <p class="small" style="color:#1F4D33;margin-top:6px">O número do SMS é do golpista. Se tiver dúvida, ligue só para o número que está <b>atrás do seu cartão</b>.</p>
+      </div>
+      <button class="btn primary" data-go="inicio" style="margin-top:16px">Continuar</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const screens=[...document.querySelectorAll('.screen')].map(s=>s.id);
+function show(id){
+  if(!screens.includes(id)) id='boas-vindas';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+  const sb=document.getElementById('statusbar');
+  const bg={'boas-vindas':'var(--navy)','resultado':'var(--red)','guardiao':'var(--purple)'}[id];
+  sb.style.background=bg||'var(--bg)'; sb.style.color=bg?'#fff':'var(--ink)';
+  document.querySelectorAll('.side a').forEach(a=>a.style.fontWeight=a.dataset.go===id?'700':'400');
+  if(id==='treino' && new URLSearchParams(location.search).has('shot')) document.getElementById('feedback').style.display='block',document.getElementById('ans-sim').classList.add('wrong');
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('#ans-sim')){document.getElementById('ans-sim').classList.add('wrong');document.getElementById('feedback').style.display='block';return}
+  if(e.target.closest('#ans-nao')){const f=document.getElementById('feedback');f.style.display='block';f.style.background='var(--redbg)';f.querySelector('b').textContent='Cuidado: era golpe!';f.querySelector('b').style.color='var(--red)';return}
+  const t=e.target.closest('[data-toggle]'); if(t){t.classList.toggle('sel');return}
+  const g=e.target.closest('[data-go]'); if(g){location.hash=g.dataset.go}
+});
+addEventListener('hashchange',()=>show(location.hash.slice(1)));
+if(new URLSearchParams(location.search).has('shot')) document.body.classList.add('shot');
+show(location.hash.slice(1));
+</script>
+</body>
+</html>
