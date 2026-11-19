@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Confere Aí — Protótipo navegável</title>
 <style>
 :root{
@@ -11,16 +11,16 @@
   --redbg:#FCEBE8; --greenbg:#E6F4EC; --yellowbg:#FBF2DF; --bluebg:#E9F0FE; --purple:#6B3FA0; --purplebg:#F1EAF8;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#D9DEE5;color:var(--ink);min-height:100vh;display:flex;gap:40px;align-items:center;justify-content:center;padding:24px}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#D9DEE5;color:var(--ink);height:100vh;height:100dvh;overflow:hidden;display:flex;align-items:center;justify-content:center;-webkit-text-size-adjust:100%}
 .side{max-width:290px;color:var(--navy)}
 .side h1{font-size:22px;margin-bottom:8px}
 .side p{font-size:14px;color:#3D4D5E;line-height:1.5;margin-bottom:14px}
 .side ol{font-size:13px;color:#3D4D5E;padding-left:18px;line-height:1.7}
 .side a{color:var(--blue);cursor:pointer;text-decoration:none}
 .side a:hover{text-decoration:underline}
-.phone{width:390px;height:812px;background:var(--bg);border-radius:44px;border:10px solid #111;position:relative;overflow:hidden;box-shadow:0 30px 60px rgba(19,41,75,.25)}
-@media (max-width:500px){body{padding:0;display:block;background:var(--bg)}.phone{width:100vw;height:100vh;height:100dvh;border:none;border-radius:0;box-shadow:none}}
-body.shot{background:var(--bg);padding:0;display:block}
+.phone{flex-shrink:0;transform-origin:center center;width:390px;height:812px;background:var(--bg);border-radius:44px;border:10px solid #111;position:relative;overflow:hidden;box-shadow:0 30px 60px rgba(19,41,75,.25)}
+body.shot{background:var(--bg);display:block;height:auto;overflow:visible}
 body.shot .side{display:none}
 body.shot .phone{border:none;border-radius:0;box-shadow:none}
 .status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:14px;font-weight:600}
@@ -67,6 +67,21 @@ body.shot .phone{border:none;border-radius:0;box-shadow:none}
 .ans{flex:1;padding:18px 8px;border-radius:14px;border:2px solid var(--line);background:#fff;font-size:17px;font-weight:800;cursor:pointer;text-align:center}
 .ans.wrong{border-color:var(--green);background:var(--greenbg);color:var(--green)}
 #feedback{display:none}
+/* Celular de verdade: tela cheia, sem moldura nem barra de status falsa */
+@media (max-width:500px), (max-height:500px) and (pointer:coarse){
+  body{display:block;background:var(--bg)}
+  .phone{width:100vw;height:100vh;height:100dvh;border:none;border-radius:0;box-shadow:none;transform:none!important}
+  .status{display:none}
+  .screen{top:0;padding-top:env(safe-area-inset-top)}
+  .tabbar{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+  .body,.topbar{width:100%;max-width:640px;margin-left:auto;margin-right:auto}
+  .body{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+}
+@media (max-width:350px){
+  .btn{font-size:16px;padding:15px}
+  .topbar h2{font-size:18px}
+  .opt{font-size:15px;padding:13px}
+}
 </style>
 </head>
 <body>
@@ -300,8 +315,18 @@ document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]'); if(g){location.hash=g.dataset.go}
 });
 addEventListener('hashchange',()=>show(location.hash.slice(1)));
+const mobileMQ=matchMedia('(max-width:500px), (max-height:500px) and (pointer:coarse)');
+function fit(){
+  const p=document.querySelector('.phone');
+  if(mobileMQ.matches||document.body.classList.contains('shot')){p.style.transform='';return}
+  const s=Math.min(1,(innerHeight-32)/832,(innerWidth-32)/410);
+  p.style.transform='scale('+s+')';
+}
+addEventListener('resize',fit);
+try{mobileMQ.addEventListener('change',fit)}catch(e){}
 if(new URLSearchParams(location.search).has('shot')) document.body.classList.add('shot');
 show(location.hash.slice(1));
+fit();
 </script>
 </body>
 </html>
